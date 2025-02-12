@@ -54,26 +54,30 @@ export const userStore = defineStore('user', {
   actions: {
     async setUser() {
       const user = await import('@/api/user')
-      const res = await user.userInfo()
-      const data = res.data
-      this.uid = data.username
-      this.name = data.username
-      this.photo = data.photo
-      /* data.token = wsCache.get('user.token')
-      data.exp = wsCache.get('user.exp')
-      data.time = wsCache.get('user.time')
-      const keys: string[] = ['token', 'uid', 'name', 'oid', 'language', 'exp', 'time']
-
-      keys.forEach(key => {
-        const dkey = key === 'uid' ? 'id' : key
-        this[key] = data[dkey]
-        wsCache.set('user.' + key, this[key])
-      }) */
-      const locale = useLocaleStoreWithOut()
-      if (locale.getCurrentLocale?.lang !== this.language) {
-        window.location.reload()
+      try {
+        const res = await user.userInfo()
+        const data = res.data
+        this.uid = data.username
+        this.name = data.username
+        this.photo = data.photo
+        /* data.token = wsCache.get('user.token')
+        data.exp = wsCache.get('user.exp')
+        data.time = wsCache.get('user.time')
+        const keys: string[] = ['token', 'uid', 'name', 'oid', 'language', 'exp', 'time']
+  
+        keys.forEach(key => {
+          const dkey = key === 'uid' ? 'id' : key
+          this[key] = data[dkey]
+          wsCache.set('user.' + key, this[key])
+        }) */
+        const locale = useLocaleStoreWithOut()
+        if (locale.getCurrentLocale?.lang !== this.language) {
+          window.location.reload()
+        }
+        this.setLanguage(this.language)
+      } catch (error) {
+        console.log(error)
       }
-      this.setLanguage(this.language)
     },
     setToken(token: string) {
       useCache().wsCache.set('user.token', token)
