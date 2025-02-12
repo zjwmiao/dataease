@@ -76,6 +76,7 @@ export const userStore = defineStore('user', {
         }
         this.setLanguage(this.language)
       } catch (error) {
+        useCache().wsCache.delete('user.token')
         console.log(error)
       }
     },
