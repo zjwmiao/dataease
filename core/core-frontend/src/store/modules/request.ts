@@ -16,7 +16,7 @@ export const useRequestStore = defineStore('request', {
     }
   },
   getters: {
-    getRequestList(): string {
+    getRequestList(): any[] {
       return this.cachedRequestList
     }
   },

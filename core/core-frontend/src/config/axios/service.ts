@@ -24,6 +24,7 @@ type AxiosErrorWidthLoading<T> = T & {
 
 type InternalAxiosRequestConfigWidthLoading<T> = T & {
   loading?: boolean
+  oneId?: boolean
 }
 
 import { ElMessage, ElMessageBox } from 'element-plus-secondary'
@@ -40,10 +41,13 @@ const embeddedBasePath =
   basePath.startsWith('./') && basePath.length > 2 ? basePath.substring(2) : basePath
 export const PATH_URL = embeddedStore.baseUrl ? embeddedStore?.baseUrl + embeddedBasePath : basePath
 
+export interface MyAxiosRequestConfig<D = any> extends AxiosRequestConfig<D> {
+  loading?: boolean
+  oneId?: boolean
+}
+
 export interface AxiosInstanceWithLoading extends AxiosInstance {
-  <T = any, R = AxiosResponse<T>, D = any>(
-    config: AxiosRequestConfig<D> & { loading?: boolean }
-  ): Promise<R>
+  <T = any, R = AxiosResponse<T>, D = any>(config: MyAxiosRequestConfig<D>): Promise<R>
 }
 
 const getTimeOut = () => {
@@ -91,12 +95,22 @@ const linkStore = useLinkStoreWithOut()
 const CancelToken = axios.CancelToken
 const cancelMap = {}
 
+const pass = (response: AxiosResponse) => {
+  if (response.config.url?.startsWith('/oneid')) {
+    return response.data.code === 200
+  }
+  return response.data.code === result_code || response.data.code === 50002
+}
+
 // request拦截器
 service.interceptors.request.use(
   async (c: InternalAxiosRequestConfigWidthLoading<InternalAxiosRequestConfig>) => {
     let config = configHandler(c)
     if (config instanceof Promise) {
       config = await config
+    }
+    if (config.oneId) {
+      config.headers.Token = wsCache.get('user.token')
     }
     if (
       config.method === 'post' &&
@@ -154,10 +168,6 @@ service.interceptors.response.use(
     response: AxiosResponse<any> & { config: InternalAxiosRequestConfig & { loading?: boolean } }
   ) => {
     executeVersionHandler(response)
-    /* if (response.headers['x-de-refresh-token']) {
-      wsCache.set('user.token', response.headers['x-de-refresh-token'])
-      wsCache.set('user.exp', new Date().getTime() + 90000)
-    } */
     if (response.headers['x-de-link-token']) {
       linkStore.setLinkToken(response.headers['x-de-link-token'])
     }
@@ -166,7 +176,7 @@ service.interceptors.response.use(
     if (response.config.responseType === 'blob') {
       // 如果是文件流，直接过
       return response
-    } else if (response.data.code === result_code || response.data.code === 50002) {
+    } else if (pass(response)) {
       return response.data
     } else if (response.config.url.match(/^\/map|geo\/\d{3}\/\d+\.json$/)) {
       //   TODO 处理静态文件
@@ -206,6 +216,9 @@ service.interceptors.response.use(
     }
   },
   (error: AxiosErrorWidthLoading<AxiosError>) => {
+    if (error.status === 401 || error.response.data.status === 401) {
+      wsCache.delete('user.token')
+    }
     if (error.message?.includes('timeout of')) {
       requestStore.resetLoadingMap()
       ElMessage({

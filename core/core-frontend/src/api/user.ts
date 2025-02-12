@@ -5,7 +5,15 @@ export const mountedOrg = (keyword?: string) =>
 
 export const switchOrg = (id: number | string) => request.post({ url: `/user/switch/${id}` })
 
-export const userInfo = () => request.get({ url: '/user/info' })
+export const userInfo = () => request.get({ url: '/user/info' }).then(({ data }) => data)
+export const oneIdUserInfo = () =>
+  request
+    .get({
+      url: '/oneid/personal/center/user?community=openeuler',
+      baseURL: import.meta.env.VITE_LOGIN_URL,
+      oneId: true
+    })
+    .then(({ data }) => data)
 
 export const searchRoleApi = (keyword: string) =>
   request.post({ url: '/role/query', data: { keyword } })

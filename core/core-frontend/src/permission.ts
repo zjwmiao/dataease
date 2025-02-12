@@ -94,7 +94,6 @@ router.beforeEach(async (to, from, next) => {
         next()
         return
       }
-
       let roleRouters = (await getRoleRouters()) || []
       if (isDesktop) {
         roleRouters = roleRouters.filter(item => item.name !== 'system')
@@ -112,7 +111,7 @@ router.beforeEach(async (to, from, next) => {
       const nextData = to.path === redirect ? { ...to, replace: true } : { path: redirect }
 
       permissionStore.setIsAddRouters(true)
-      await interactiveStore.initInteractive(true)
+      // await interactiveStore.initInteractive(true)
 
       if (!pathValid(to.path) && to.path !== '/404' && !to.path.startsWith('/de-link')) {
         const firstPath = getFirstAuthMenu()
@@ -143,7 +142,11 @@ router.beforeEach(async (to, from, next) => {
       permissionStore.setCurrentPath(to.path)
       next()
     } else {
-      next(`/login?redirect=${to.fullPath || to.path}`) // 否则全部重定向到登录页
+      // next(`/login?redirect=${to.fullPath || to.path}`) // 否则全部重定向到登录页
+      location.replace(
+        `${import.meta.env.VITE_LOGIN_URL}/login?redirect_uri=${encodeURIComponent(location.href)}`
+      )
+      return false
     }
   }
 })

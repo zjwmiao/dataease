@@ -6,9 +6,14 @@ export default {
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api\/f/, '')
       },
+      '/api/oneid': {
+        target: 'https://openeuler-usercenter.test.osinfra.cn',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api/, '')
+      },
       // 使用 proxy 实例
       '/api': {
-        target: 'http://localhost:8100',
+        target: 'https://dataease.test.osinfra.cn',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, 'de2api')
       }

@@ -306,8 +306,8 @@ loadShareBase()
   <div class="workbranch" v-loading="requestStore.loadingMap[permissionStore.currentPath]">
     <div class="info-quick-creation">
       <div class="user-info">
-        <el-icon class="main-color user-icon-container">
-          <Icon name="user-img"><userImg class="svg-icon" /></Icon>
+        <el-icon class="main-color user-icon-container" style="background-color: transparent">
+          <img class="main-color" :src="userStore.photo" />
         </el-icon>
         <div class="info">
           <div class="name-role flex-align-center">
