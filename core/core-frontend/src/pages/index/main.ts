@@ -13,6 +13,7 @@ import { installDirective } from '@/directive'
 import '@/utils/DateUtil'
 import '@/permission'
 import WebSocketPlugin from '../../websocket'
+
 const setupAll = async () => {
   const app = createApp(App)
   installDirective(app)

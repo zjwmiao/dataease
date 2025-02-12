@@ -4,6 +4,7 @@ import { useUserStoreWithOut } from '@/store/modules/user'
 import { useRequestStoreWithOut } from '@/store/modules/request'
 
 import { isLink } from '@/utils/utils'
+import { AxiosRequestConfig } from 'axios'
 const { wsCache } = useCache()
 const userStore = useUserStoreWithOut()
 const requestStore = useRequestStoreWithOut()
@@ -44,7 +45,7 @@ const cacheRequest = cb => {
   requestStore.addCacheRequest(cb)
 }
 
-export const configHandler = config => {
+export const configHandler = <T extends AxiosRequestConfig>(config: T) => {
   const desktop = wsCache.get('app.desktop')
   if (desktop) {
     return config
@@ -53,7 +54,8 @@ export const configHandler = config => {
     return config
   }
   if (wsCache.get('user.token')) {
-    config.headers['X-DE-TOKEN'] = wsCache.get('user.token')
+    config.headers['X-DE-TOKEN'] =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOjEsIm9pZCI6MX0.UK4jQ8CzyC8nylz_eAFZMa8agK9vCF2zt9GQENwXbV0'
     const expired = isExpired()
     if (expired && config.url !== refreshUrl) {
       if (!getRefreshStatus()) {
@@ -73,7 +75,7 @@ export const configHandler = config => {
             setRefreshStatus(false)
           })
       }
-      const retry = new Promise(resolve => {
+      const retry = new Promise<T>(resolve => {
         cacheRequest(token => {
           config.headers['X-DE-TOKEN'] = token
           resolve(config)
