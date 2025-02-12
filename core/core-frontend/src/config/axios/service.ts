@@ -94,10 +94,11 @@ const cancelMap = {}
 // request拦截器
 service.interceptors.request.use(
   async (c: InternalAxiosRequestConfigWidthLoading<InternalAxiosRequestConfig>) => {
-    let config = configHandler(c)
+    const config = configHandler(c)
+    /* let config = configHandler(c)
     if (config instanceof Promise) {
       config = await config
-    }
+    } */
     if (
       config.method === 'post' &&
       (config.headers as AxiosRequestHeaders)['Content-Type'] ===
